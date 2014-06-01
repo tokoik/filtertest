@@ -226,7 +226,7 @@ int main()
 
   // uniform 変数のインデックスの検索（見つからなければ -1）
   GLuint colorLoc[sizeof program / sizeof program[0]];
-  for (int i = 0; i < sizeof program / sizeof program[0]; ++i)
+  for (unsigned int i = 0; i < sizeof program / sizeof program[0]; ++i)
   {
     colorLoc[i] = glGetUniformLocation(program[i], "color");
   }
