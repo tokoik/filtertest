@@ -26,6 +26,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		7D13A1A6193AAC9A00030D2E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
 		7D1E90EE1123E36C005E6C75 /* filtertest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = filtertest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1E90F11123E36C005E6C75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D7AF85E1222C8CC003A0434 /* opengl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = opengl.icns; sourceTree = "<group>"; };
@@ -78,6 +79,7 @@
 				7D82FFF41939C25F00EA4995 /* median3.frag */,
 				7D82FFEB1939952A00EA4995 /* gaussian.frag */,
 				7D82FFE81939952200EA4995 /* bilateral.frag */,
+				7D13A1A6193AAC9A00030D2E /* README.md */,
 				7D8F50081937759300AF67C4 /* libopencv_highgui.dylib */,
 				7D8F50061937758400AF67C4 /* libopencv_core.dylib */,
 				7D1E90F11123E36C005E6C75 /* Info.plist */,
