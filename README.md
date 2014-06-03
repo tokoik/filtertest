@@ -4,7 +4,7 @@
 ## 概要
 
 * OpenGL / GLSL のテクスチャマッピング機能を使った単純な画像フィルタの実装サンプルです。
-* カメラからの映像入力には OpenCV を使っていますが、OpenCV 自体の画像処理機能は使っていません。
+* カメラからの映像入力には OpenCV を使っていますが、OpenCV の画像処理機能自体は使っていません。
 * Windows (Visual Studio 2013) / Mac OS X (Xcode 5) / Linux (Makefile) に対応しています。
 
 ## 実行環境

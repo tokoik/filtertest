@@ -5299,7 +5299,7 @@ namespace gg
     virtual void loadMatrix(const GgMatrix &mp, const GgMatrix &mw)
     {
       GgPointShader::loadMatrix(mp, mw);
-      glUniformMatrix4fv(loc.mg, 1, GL_FALSE, ggTranspose(mw).get());
+      glUniformMatrix4fv(loc.mg, 1, GL_FALSE, ggNormal(mw).get());
     }
 
     //! \brief •ÏŠ·s—ñ‚ğİ’è‚·‚é.
