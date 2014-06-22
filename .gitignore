@@ -28,6 +28,7 @@ Thumbs.db
 Debug/
 Release/
 ipch/
+*.dep
 #
 # anothre stuff
 #

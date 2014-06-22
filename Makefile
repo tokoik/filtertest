@@ -11,8 +11,7 @@ $(TARGET): $(OBJECTS)
 	$(LINK.cc) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
 $(TARGET).dep: $(SOURCES) $(HEADERS)
-	$(CXX) $(CXXFLAGS) -MM $(SOURCES) > $(TARGET).dep
-	$(MAKE_COMMAND)
+	$(CXX) $(CXXFLAGS) -MM $(SOURCES) > $@
 
 clean:
 	-$(RM) $(TARGET) *.o *~ .*~ a.out core
