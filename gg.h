@@ -29,7 +29,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #if defined(_WIN32)
 //#  pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"")
 #  pragma warning(disable:4996)
-#  pragma comment(lib, "glfw3.lib")
+#  ifdef _DEBUG
+#    pragma comment(lib, "glfw3debug.lib")
+#  else
+#    pragma comment(lib, "glfw3.lib")
+#  endif
 #  pragma comment(lib, "opengl32.lib")
 #  include "glfw3.h"
 #  include "glext.h"
@@ -4872,6 +4876,17 @@ namespace gg
   };
 
   /*!
+  ** \brief 点群を立方体状に生成する.
+  **
+  **    \param nv 生成する点の数.
+  **    \param cx 点群の中心の x 座標.
+  **    \param cy 点群の中心の y 座標.
+  **    \param cz 点群の中心の z 座標.
+  **    \param length 点群を生成する立方体の一辺の長さ.
+  */
+  extern GgPoints *ggPointsCube(GLuint nv, GLfloat length = 1.0f, GLfloat cx = 0.0f, GLfloat cy = 0.0f, GLfloat cz = 0.0f);
+
+  /*!
   ** \brief 点群を球状に生成する.
   **
   **   \param nv 生成する点の数.
@@ -4880,7 +4895,7 @@ namespace gg
   **   \param cz 点群の中心の z 座標.
   **   \param radius 点群を生成する半径.
   */
-  extern GgPoints *ggPointSphere(GLuint nv, GLfloat cx = 0.0f, GLfloat cy = 0.0f, GLfloat cz = 0.0f, GLfloat radius = 0.5f);
+  extern GgPoints *ggPointsSphere(GLuint nv, GLfloat radius = 0.5f, GLfloat cx = 0.0f, GLfloat cy = 0.0f, GLfloat cz = 0.0f);
 
   /*!
   ** \brief 矩形状に 2 枚の三角形を生成する.
@@ -5167,6 +5182,34 @@ namespace gg
       return *this;
     }
 
+    //! \brief 光源の特性
+    struct Light
+    {
+      GLfloat ambient[4];
+      GLfloat diffuse[4];
+      GLfloat specular[4];
+      GLfloat position[4];
+    };
+
+    //! \brief 光源の位置と特性を設定する.
+    //!   \param light 光源の特性の gg::GgSimpleShader::Light 構造体
+    void setLight(const Light &light)
+    {
+      glUniform4fv(loc.lamb, 1, light.ambient);
+      glUniform4fv(loc.ldiff, 1, light.diffuse);
+      glUniform4fv(loc.lspec, 1, light.specular);
+      glUniform4fv(loc.pl, 1, light.position);
+    }
+
+    //! \brief 光源の特性を設定する.
+    //!   \param light 光源の特性の gg::GgSimpleShader::Light 構造体
+    void setLightMaterial(const Light &light)
+    {
+      glUniform4fv(loc.lamb, 1, light.ambient);
+      glUniform4fv(loc.ldiff, 1, light.diffuse);
+      glUniform4fv(loc.lspec, 1, light.specular);
+    }
+
     //! \brief 光源の位置を設定する.
     //!   \param x 光源の位置の x 座標.
     //!   \param y 光源の位置の y 座標.
@@ -5233,6 +5276,25 @@ namespace gg
     void setLightSpecular(const GLfloat *spec)
     {
       glUniform4fv(loc.lspec, 1, spec);
+    }
+
+    //! \brief 材質の特性
+    struct Material
+    {
+      GLfloat ambient[4];
+      GLfloat diffuse[4];
+      GLfloat specular[4];
+      GLfloat shininess;
+    };
+
+    //! \brief 材質の特性を設定する.
+    //!   \param material 光源の特性の gg::GgSimpleShader::Material 構造体
+    void setMaterial(const Material &material)
+    {
+      glUniform4fv(loc.kamb, 1, material.ambient);
+      glUniform4fv(loc.kdiff, 1, material.diffuse);
+      glUniform4fv(loc.kspec, 1, material.specular);
+      glUniform1f(loc.kshi, material.shininess);
     }
 
     //! \brief 環境光に対する反射係数を設定する.

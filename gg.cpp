@@ -6759,6 +6759,41 @@ void gg::GgElements::draw(GLint first, GLsizei count) const
 }
 
 /*!
+** \brief 点群を立方体状に生成する.
+**
+**    \param nv 生成する点の数.
+**    \param cx 点群の中心の x 座標.
+**    \param cy 点群の中心の y 座標.
+**    \param cz 点群の中心の z 座標.
+**    \param length 点群を生成する立方体の一辺の長さ.
+*/
+gg::GgPoints *gg::ggPointsCube(GLuint nv, GLfloat length, GLfloat cx, GLfloat cy, GLfloat cz)
+{
+  // メモリを確保する
+  GLfloat (*pos)[3](new(std::nothrow) GLfloat[nv][3]);
+  
+  // メモリが確保できなければ戻る
+  if (pos == NULL) return NULL;
+  
+  // 点を生成する
+  for (GLuint v = 0; v < nv; ++v)
+  {
+    pos[v][0] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * length + cx;
+    pos[v][1] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * length + cy;
+    pos[v][2] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * length + cz;
+  }
+  
+  // ポイントデータの GgPoints オブジェクトを作成する
+  GgPoints *const points(new gg::GgPoints(nv, pos, GL_POINTS));
+  
+  // 作業用のメモリを解放する
+  delete[] pos;
+  
+  // GgPoints オブジェクトを返す
+  return points;
+}
+
+/*!
 ** \brief 点群を球状に生成する.
 **
 **    \param nv 生成する点の数.
@@ -6767,7 +6802,7 @@ void gg::GgElements::draw(GLint first, GLsizei count) const
 **    \param cz 点群の中心の z 座標.
 **    \param radius 点群を生成する半径.
 */
-gg::GgPoints *gg::ggPointSphere(GLuint nv, GLfloat cx, GLfloat cy, GLfloat cz, GLfloat radius)
+gg::GgPoints *gg::ggPointsSphere(GLuint nv, GLfloat radius, GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
   GLfloat (*pos)[3](new(std::nothrow) GLfloat[nv][3]);
