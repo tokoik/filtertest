@@ -1,6 +1,16 @@
 #include <iostream>
 #include <cstdlib>
 #include <opencv2/highgui/highgui.hpp>
+#ifdef _WIN32
+#  define CV_VERSION_STR CVAUX_STR(CV_MAJOR_VERSION) CVAUX_STR(CV_MINOR_VERSION) CVAUX_STR(CV_SUBMINOR_VERSION)
+#  ifdef _DEBUG
+#    define CV_EXT_STR "d.lib"
+#  else
+#    define CV_EXT_STR ".lib"
+#  endif
+#  pragma comment(lib, "opencv_core" CV_VERSION_STR CV_EXT_STR)
+#  pragma comment(lib, "opencv_highgui" CV_VERSION_STR CV_EXT_STR)
+#endif
 
 #define BENCHMARK 0
 
@@ -166,7 +176,7 @@ int main()
 
   // OpenGL Version 3.2 Core Profile ‚ð‘I‘ð‚·‚é
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 

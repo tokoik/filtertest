@@ -1,5 +1,4 @@
-#version 150 core
-#extension GL_ARB_explicit_attrib_location: enable
+#version 330
 
 // 3x3 の最大値と最小値を除いた移動平均フィルタ
 
