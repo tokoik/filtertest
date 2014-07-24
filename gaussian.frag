@@ -2,43 +2,60 @@
 
 // 5x5 ガウシアンフィルタ
 
-uniform sampler2DRect color;
+uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
+// オフセット
+const ivec2 offset[] = ivec2[](
+
+  ivec2(-2, -2),
+  ivec2(-1, -2),
+  ivec2( 0, -2),
+  ivec2( 1, -2),
+  ivec2( 2, -2),
+        
+  ivec2(-2, -1),
+  ivec2(-1, -1),
+  ivec2( 0, -1),
+  ivec2( 1, -1),
+  ivec2( 2, -1),
+        
+  ivec2(-2,  0),
+  ivec2(-1,  0),
+  ivec2( 1,  0),
+  ivec2( 2,  0),
+        
+  ivec2(-2,  1),
+  ivec2(-1,  1),
+  ivec2( 0,  1),
+  ivec2( 1,  1),
+  ivec2( 2,  1),
+        
+  ivec2(-2,  2),
+  ivec2(-1,  2),
+  ivec2( 0,  2),
+  ivec2( 1,  2),
+  ivec2( 2,  2)
+
+);
+
+// 分散
+const float variance = 1.0;
+
+// 平均を求める
 void main(void)
 {
-  fc = (
-        
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-2, -2)) * 0.00390625
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-1, -2)) * 0.015625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 0, -2)) * 0.0234375
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 1, -2)) * 0.015625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 2, -2)) * 0.00390625
-        
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-2, -1)) * 0.015625
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-1, -1)) * 0.0625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 0, -1)) * 0.09375
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 1, -1)) * 0.0625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 2, -1)) * 0.015625
-        
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-2,  0)) * 0.0234375
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-1,  0)) * 0.09375
-        + texture(color, gl_FragCoord.xy) * 0.140625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 1,  0)) * 0.09375
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 2,  0)) * 0.0234375
-        
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-2,  1)) * 0.015625
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-1,  1)) * 0.0625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 0,  1)) * 0.09375
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 1,  1)) * 0.0625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 2,  1)) * 0.015625
-        
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-2,  2)) * 0.00390625
-        + textureOffset(color, gl_FragCoord.xy, ivec2(-1,  2)) * 0.015625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 0,  2)) * 0.0234375
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 1,  2)) * 0.015625
-        + textureOffset(color, gl_FragCoord.xy, ivec2( 2,  2)) * 0.00390625
-        
-        );
+  vec4 csum = texture(image, gl_FragCoord.xy);
+  vec4 wsum = vec4(1.0);
+  
+  for (int i = 0; i < offset.length(); ++i)
+  {
+    float o = vec2(offset[i]);
+    float w = exp(-0.5 * dot(o, o) / variance);
+    wsum += w;
+    csum += textureOffset(image, gl_FragCoord.xy, offset[i]) * w;
+  }
+
+  fc = csum / wsum;
 }

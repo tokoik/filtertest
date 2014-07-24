@@ -2,56 +2,67 @@
 
 // 5x5 バイラテラルフィルタ
 
-uniform sampler2DRect color;
+uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
 const float sigma = -100.0;
 
-// 重み付き和と重みの合計を求める
-void calc(in vec4 c, in vec4 b, in float w, inout vec4 csum, inout vec4 wsum)
-{
-  vec4 d = c - b;
-  vec4 e = exp(d * d * sigma) * w;
-  wsum += e;
-  csum += c * e;
-}
+// オフセット
+const ivec2 offset[] = ivec2[](
 
+  ivec2(-2, -2),
+  ivec2(-1, -2),
+  ivec2( 0, -2),
+  ivec2( 1, -2),
+  ivec2( 2, -2),
+        
+  ivec2(-2, -1),
+  ivec2(-1, -1),
+  ivec2( 0, -1),
+  ivec2( 1, -1),
+  ivec2( 2, -1),
+        
+  ivec2(-2,  0),
+  ivec2(-1,  0),
+  ivec2( 1,  0),
+  ivec2( 2,  0),
+        
+  ivec2(-2,  1),
+  ivec2(-1,  1),
+  ivec2( 0,  1),
+  ivec2( 1,  1),
+  ivec2( 2,  1),
+        
+  ivec2(-2,  2),
+  ivec2(-1,  2),
+  ivec2( 0,  2),
+  ivec2( 1,  2),
+  ivec2( 2,  2)
+
+);
+
+// 分散
+const float variance1 = 1.0;
+const float variance2 = 100.0;
+
+// 平均を求める
 void main(void)
 {
-  const float w[] = float[](0.140625, 0.09375, 0.0625, 0.0234375, 0.015625, 0.00390625);
-  vec4 b = texture(color, gl_FragCoord.xy);
-  vec4 wsum = vec4(w[0]);
-  vec4 csum = b * wsum;
+  vec4 csum = texture(image, gl_FragCoord.xy);
+  vec4 base = csum;
+  vec4 wsum = vec4(1.0);
   
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-2, -2)), b, w[5], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-1, -2)), b, w[4], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 0, -2)), b, w[3], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 1, -2)), b, w[4], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 2, -2)), b, w[5], csum, wsum);
-  
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-2, -1)), b, w[4], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-1, -1)), b, w[2], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 0, -1)), b, w[1], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 1, -1)), b, w[2], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 2, -1)), b, w[4], csum, wsum);
-  
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-2,  0)), b, w[2], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-1,  0)), b, w[1], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 1,  0)), b, w[1], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 2,  0)), b, w[2], csum, wsum);
-  
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-2,  1)), b, w[4], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-1,  1)), b, w[2], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 0,  1)), b, w[1], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 1,  1)), b, w[2], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 2,  1)), b, w[4], csum, wsum);
-  
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-2,  2)), b, w[5], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2(-1,  2)), b, w[4], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 0,  2)), b, w[3], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 1,  2)), b, w[4], csum, wsum);
-  calc(textureOffset(color, gl_FragCoord.xy, ivec2( 2,  2)), b, w[5], csum, wsum);
-  
+  for (int i = 0; i < offset.length(); ++i)
+  {
+    float o = vec2(offset[i]);
+    float w = exp(-0.5 * dot(o, o) / variance1);
+    vec4 c = textureOffset(image, gl_FragCoord.xy, offset[i]);
+    vec4 d = c - base;
+    vec4 e = exp(-0.5 * d * d / variance2) * w;
+    wsum += e;
+    csum += c * e;
+  }
+
   fc = csum / wsum;
 }

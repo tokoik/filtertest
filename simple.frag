@@ -2,11 +2,11 @@
 
 // ‰½‚à‚µ‚È‚¢
 
-uniform sampler2DRect color;
+uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
 void main(void)
 {
-  fc = texture(color, gl_FragCoord.xy);
+  fc = texture(image, gl_FragCoord.xy);
 }

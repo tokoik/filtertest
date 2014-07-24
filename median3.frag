@@ -2,7 +2,7 @@
 
 // 3x3 ‰æ‘f‚Ì’†ŠÔ’l
 
-uniform sampler2DRect color;
+uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
@@ -26,17 +26,17 @@ void main(void)
 {
   vec4 h[9] = vec4[]
   (
-    textureOffset(color, gl_FragCoord.xy, ivec2(-1, -1)),
-    textureOffset(color, gl_FragCoord.xy, ivec2( 0, -1)),
-    textureOffset(color, gl_FragCoord.xy, ivec2( 1, -1)),
+    textureOffset(image, gl_FragCoord.xy, ivec2(-1, -1)),
+    textureOffset(image, gl_FragCoord.xy, ivec2( 0, -1)),
+    textureOffset(image, gl_FragCoord.xy, ivec2( 1, -1)),
     
-    textureOffset(color, gl_FragCoord.xy, ivec2(-1,  0)),
-    texture(color, gl_FragCoord.xy),
-    textureOffset(color, gl_FragCoord.xy, ivec2( 1,  0)),
+    textureOffset(image, gl_FragCoord.xy, ivec2(-1,  0)),
+    texture(image, gl_FragCoord.xy),
+    textureOffset(image, gl_FragCoord.xy, ivec2( 1,  0)),
     
-    textureOffset(color, gl_FragCoord.xy, ivec2(-1,  1)),
-    textureOffset(color, gl_FragCoord.xy, ivec2( 0,  1)),
-    textureOffset(color, gl_FragCoord.xy, ivec2( 1,  1))
+    textureOffset(image, gl_FragCoord.xy, ivec2(-1,  1)),
+    textureOffset(image, gl_FragCoord.xy, ivec2( 0,  1)),
+    textureOffset(image, gl_FragCoord.xy, ivec2( 1,  1))
     
   );
   

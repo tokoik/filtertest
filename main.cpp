@@ -210,9 +210,9 @@ int main()
   glEnableVertexAttribArray(0);
   
   // テクスチャを準備する
-  GLuint color;
-  glGenTextures(1, &color);
-  glBindTexture(GL_TEXTURE_RECTANGLE, color);
+  GLuint image;
+  glGenTextures(1, &image);
+  glBindTexture(GL_TEXTURE_RECTANGLE, image);
   glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA, capture_width, capture_height, 0, GL_BGR, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -235,10 +235,10 @@ int main()
   };
 
   // uniform 変数のインデックスの検索（見つからなければ -1）
-  GLuint colorLoc[sizeof program / sizeof program[0]];
+  GLuint imageLoc[sizeof program / sizeof program[0]];
   for (unsigned int i = 0; i < sizeof program / sizeof program[0]; ++i)
   {
-    colorLoc[i] = glGetUniformLocation(program[i], "color");
+    imageLoc[i] = glGetUniformLocation(program[i], "image");
   }
   
 #if BENCHMARK
@@ -250,7 +250,7 @@ int main()
   // ウィンドウが開いている間繰り返す
   while (window.shouldClose() == GL_FALSE)
   {
-    glBindTexture(GL_TEXTURE_RECTANGLE, color);
+    glBindTexture(GL_TEXTURE_RECTANGLE, image);
 
     if (camera.grab())
     {
@@ -275,11 +275,11 @@ int main()
     glUseProgram(program[window.getKey()]);
     
     // uniform サンプラの指定
-    glUniform1i(colorLoc[window.getKey()], 0);
+    glUniform1i(imageLoc[window.getKey()], 0);
     
     // テクスチャユニットとテクスチャの指定
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_RECTANGLE, color);
+    glBindTexture(GL_TEXTURE_RECTANGLE, image);
     
     // 描画に使う頂点配列オブジェクトの指定
     glBindVertexArray(vao);
