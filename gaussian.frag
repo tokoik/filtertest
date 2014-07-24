@@ -51,7 +51,7 @@ void main(void)
   
   for (int i = 0; i < offset.length(); ++i)
   {
-    float o = vec2(offset[i]);
+    vec2 o = vec2(offset[i]);
     float w = exp(-0.5 * dot(o, o) / variance);
     wsum += w;
     csum += textureOffset(image, gl_FragCoord.xy, offset[i]) * w;

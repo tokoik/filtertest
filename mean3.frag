@@ -18,7 +18,7 @@ const ivec2 offset[] = ivec2[](
 
   ivec2(-1,  1),
   ivec2( 0,  1),
-  ivec2( 1,  0)
+  ivec2( 1,  1)
 
 );
 
