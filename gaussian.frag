@@ -15,7 +15,7 @@ vec4 f(inout vec4 wsum, const in ivec2 o)
   vec2 x = vec2(o);
   float w = exp(-0.5 * dot(x, x) / variance);
   wsum += w;
-  return textureOffset(dmap, gl_FragCoord.xy, o) * w;
+  return textureOffset(image, gl_FragCoord.xy, o) * w;
 }
 
 // •ªŽU

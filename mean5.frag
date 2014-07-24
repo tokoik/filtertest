@@ -11,34 +11,34 @@ void main(void)
 {
   vec4 sum = texture(image, gl_FragCoord.xy);
 
-  sum += textureOffset(image, t, ivec2(-2, -2));
-  sum += textureOffset(image, t, ivec2(-1, -2));
-  sum += textureOffset(image, t, ivec2( 0, -2));
-  sum += textureOffset(image, t, ivec2( 1, -2));
-  sum += textureOffset(image, t, ivec2( 2, -2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-2, -2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-1, -2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 0, -2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 1, -2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 2, -2));
         
-  sum += textureOffset(image, t, ivec2(-2, -1));
-  sum += textureOffset(image, t, ivec2(-1, -1));
-  sum += textureOffset(image, t, ivec2( 0, -1));
-  sum += textureOffset(image, t, ivec2( 1, -1));
-  sum += textureOffset(image, t, ivec2( 2, -1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-2, -1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-1, -1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 0, -1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 1, -1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 2, -1));
         
-  sum += textureOffset(image, t, ivec2(-2,  0));
-  sum += textureOffset(image, t, ivec2(-1,  0));
-  sum += textureOffset(image, t, ivec2( 1,  0));
-  sum += textureOffset(image, t, ivec2( 2,  0));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-2,  0));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-1,  0));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 1,  0));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 2,  0));
         
-  sum += textureOffset(image, t, ivec2(-2,  1));
-  sum += textureOffset(image, t, ivec2(-1,  1));
-  sum += textureOffset(image, t, ivec2( 0,  1));
-  sum += textureOffset(image, t, ivec2( 1,  1));
-  sum += textureOffset(image, t, ivec2( 2,  1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-2,  1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-1,  1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 0,  1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 1,  1));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 2,  1));
         
-  sum += textureOffset(image, t, ivec2(-2,  2));
-  sum += textureOffset(image, t, ivec2(-1,  2));
-  sum += textureOffset(image, t, ivec2( 0,  2));
-  sum += textureOffset(image, t, ivec2( 1,  2));
-  sum += textureOffset(image, t, ivec2( 2,  2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-2,  2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2(-1,  2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 0,  2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 1,  2));
+  sum += textureOffset(image, gl_FragCoord.xy, ivec2( 2,  2));
 
   fc = sum * 0.04;
 }

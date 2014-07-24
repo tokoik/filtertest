@@ -9,7 +9,7 @@ layout (location = 0) out vec4 fc;
 // 画素値とその最大値・最小値を求める
 vec4 f(inout vec4 cmin, inout vec4 cmax, const in ivec2 o)
 {
-  vec4 c = textureOffset(dmap, gl_FragCoord.xy, o);
+  vec4 c = textureOffset(image, gl_FragCoord.xy, o);
   cmax = max(c, cmax);
   cmin = min(c, cmin);
   return c;
