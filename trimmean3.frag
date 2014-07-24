@@ -6,36 +6,32 @@ uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
-// オフセット
-const ivec2 offset[] = ivec2[](
-
-  ivec2(-1, -1),
-  ivec2( 0, -1),
-  ivec2( 1, -1),
-
-  ivec2(-1,  0),
-  ivec2( 1,  0),
-
-  ivec2(-1,  1),
-  ivec2( 0,  1),
-  ivec2( 1,  0)
-
-);
+// 画素値とその最大値・最小値を求める
+vec4 f(inout vec4 cmin, inout vec4 cmax, const in ivec2 o)
+{
+  vec4 c = textureOffset(dmap, gl_FragCoord.xy, o);
+  cmax = max(c, cmax);
+  cmin = min(c, cmin);
+  return c;
+}
 
 // 最大値と最小値を含まない平均を求める
 void main(void)
 {
   vec4 csum = texture(image, gl_FragCoord.xy);
-  vec4 cmax = csum;
   vec4 cmin = csum;
+  vec4 cmax = csum;
 
-  for (int i = 0; i < offset.length(); ++i)
-  {
-    vec4 c = textureOffset(image, gl_FragCoord.xy, offset[i]);
-    csum += c;
-    cmax = max(c, cmax);
-    cmin = min(c, cmin);
-  }
+  csum += f(cmin, cmax, ivec2(-1, -1));
+  csum += f(cmin, cmax, ivec2( 0, -1));
+  csum += f(cmin, cmax, ivec2( 1, -1));
 
-  fc = (csum - cmax - cmin) / (offset.length() - 1);
+  csum += f(cmin, cmax, ivec2(-1,  0));
+  csum += f(cmin, cmax, ivec2( 1,  0));
+
+  csum += f(cmin, cmax, ivec2(-1,  1));
+  csum += f(cmin, cmax, ivec2( 0,  1));
+  csum += f(cmin, cmax, ivec2( 1,  1));
+
+  fc = (csum - cmin - cmax) * 0.14285714;
 }

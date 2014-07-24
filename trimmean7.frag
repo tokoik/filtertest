@@ -6,81 +6,76 @@ uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
-// オフセット
-const ivec2 offset[] = ivec2[](
-        
-  ivec2(-3, -3),
-  ivec2(-2, -3),
-  ivec2(-1, -3),
-  ivec2( 0, -3),
-  ivec2( 1, -3),
-  ivec2( 2, -3),
-  ivec2( 3, -3),
-        
-  ivec2(-3, -2),
-  ivec2(-2, -2),
-  ivec2(-1, -2),
-  ivec2( 0, -2),
-  ivec2( 1, -2),
-  ivec2( 2, -2),
-  ivec2( 3, -2),
-        
-  ivec2(-3, -1),
-  ivec2(-2, -1),
-  ivec2(-1, -1),
-  ivec2( 0, -1),
-  ivec2( 1, -1),
-  ivec2( 2, -1),
-  ivec2( 3, -1),
-        
-  ivec2(-3,  0),
-  ivec2(-2,  0),
-  ivec2(-1,  0),
-  ivec2( 1,  0),
-  ivec2( 2,  0),
-  ivec2( 3,  0),
-        
-  ivec2(-3,  1),
-  ivec2(-2,  1),
-  ivec2(-1,  1),
-  ivec2( 0,  1),
-  ivec2( 1,  1),
-  ivec2( 2,  1),
-  ivec2( 3,  1),
-        
-  ivec2(-3,  2),
-  ivec2(-2,  2),
-  ivec2(-1,  2),
-  ivec2( 0,  2),
-  ivec2( 1,  2),
-  ivec2( 2,  2),
-  ivec2( 3,  2),
-        
-  ivec2(-3,  3),
-  ivec2(-2,  3),
-  ivec2(-1,  3),
-  ivec2( 0,  3),
-  ivec2( 1,  3),
-  ivec2( 2,  3),
-  ivec2( 3,  3)
-
-);
-
+// 画素値とその最大値・最小値を求める
+vec4 f(inout vec4 cmin, inout vec4 cmax, const in ivec2 o)
+{
+  vec4 c = textureOffset(dmap, gl_FragCoord.xy, o);
+  cmax = max(c, cmax);
+  cmin = min(c, cmin);
+  return c;
+}
 
 // 最大値と最小値を含まない平均を求める
 void main(void)
 {
   vec4 csum = texture(image, gl_FragCoord.xy);
-  vec4 cmax = csum;
   vec4 cmin = csum;
+  vec4 cmax = csum;
 
-  for (int i = 0; i < offset.length(); ++i)
-  {
-    vec4 c = textureOffset(image, gl_FragCoord.xy, offset[i]);
-    csum += c;
-    cmax = max(c, cmax);
-    cmin = min(c, cmin);
-  }
+  csum += f(cmin, cmax, ivec2(-3, -3));
+  csum += f(cmin, cmax, ivec2(-2, -3));
+  csum += f(cmin, cmax, ivec2(-1, -3));
+  csum += f(cmin, cmax, ivec2( 0, -3));
+  csum += f(cmin, cmax, ivec2( 1, -3));
+  csum += f(cmin, cmax, ivec2( 2, -3));
+  csum += f(cmin, cmax, ivec2( 3, -3));
+        
+  csum += f(cmin, cmax, ivec2(-3, -2));
+  csum += f(cmin, cmax, ivec2(-2, -2));
+  csum += f(cmin, cmax, ivec2(-1, -2));
+  csum += f(cmin, cmax, ivec2( 0, -2));
+  csum += f(cmin, cmax, ivec2( 1, -2));
+  csum += f(cmin, cmax, ivec2( 2, -2));
+  csum += f(cmin, cmax, ivec2( 3, -2));
+        
+  csum += f(cmin, cmax, ivec2(-3, -1));
+  csum += f(cmin, cmax, ivec2(-2, -1));
+  csum += f(cmin, cmax, ivec2(-1, -1));
+  csum += f(cmin, cmax, ivec2( 0, -1));
+  csum += f(cmin, cmax, ivec2( 1, -1));
+  csum += f(cmin, cmax, ivec2( 2, -1));
+  csum += f(cmin, cmax, ivec2( 3, -1));
+        
+  csum += f(cmin, cmax, ivec2(-3,  0));
+  csum += f(cmin, cmax, ivec2(-2,  0));
+  csum += f(cmin, cmax, ivec2(-1,  0));
+  csum += f(cmin, cmax, ivec2( 1,  0));
+  csum += f(cmin, cmax, ivec2( 2,  0));
+  csum += f(cmin, cmax, ivec2( 3,  0));
+        
+  csum += f(cmin, cmax, ivec2(-3,  1));
+  csum += f(cmin, cmax, ivec2(-2,  1));
+  csum += f(cmin, cmax, ivec2(-1,  1));
+  csum += f(cmin, cmax, ivec2( 0,  1));
+  csum += f(cmin, cmax, ivec2( 1,  1));
+  csum += f(cmin, cmax, ivec2( 2,  1));
+  csum += f(cmin, cmax, ivec2( 3,  1));
+        
+  csum += f(cmin, cmax, ivec2(-3,  2));
+  csum += f(cmin, cmax, ivec2(-2,  2));
+  csum += f(cmin, cmax, ivec2(-1,  2));
+  csum += f(cmin, cmax, ivec2( 0,  2));
+  csum += f(cmin, cmax, ivec2( 1,  2));
+  csum += f(cmin, cmax, ivec2( 2,  2));
+  csum += f(cmin, cmax, ivec2( 3,  2));
+        
+  csum += f(cmin, cmax, ivec2(-3,  3));
+  csum += f(cmin, cmax, ivec2(-2,  3));
+  csum += f(cmin, cmax, ivec2(-1,  3));
+  csum += f(cmin, cmax, ivec2( 0,  3));
+  csum += f(cmin, cmax, ivec2( 1,  3));
+  csum += f(cmin, cmax, ivec2( 2,  3));
+  csum += f(cmin, cmax, ivec2( 3,  3));
 
-  fc = (csum - cmax - cmin) / (offset.length() - 1);
+  fc = (csum - cmin - cmax) * 0.021276596;
 }
