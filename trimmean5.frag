@@ -6,13 +6,12 @@ uniform sampler2DRect image;
 
 layout (location = 0) out vec4 fc;
 
-// 画素値とその最大値・最小値を求める
-vec4 f(inout vec4 cmin, inout vec4 cmax, const in ivec2 o)
+// 画素値の合計・最大値・最小値を求める
+void f(inout vec4 csum, inout vec4 cmin, inout vec4 cmax, const in vec4 c)
 {
-  vec4 c = textureOffset(image, gl_FragCoord.xy, o);
+  csum += c;
   cmax = max(c, cmax);
   cmin = min(c, cmin);
-  return c;
 }
 
 // 最大値と最小値を含まない平均を求める
@@ -22,34 +21,34 @@ void main(void)
   vec4 cmin = csum;
   vec4 cmax = csum;
 
-  csum += f(cmin, cmax, ivec2(-2, -2));
-  csum += f(cmin, cmax, ivec2(-1, -2));
-  csum += f(cmin, cmax, ivec2( 0, -2));
-  csum += f(cmin, cmax, ivec2( 1, -2));
-  csum += f(cmin, cmax, ivec2( 2, -2));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-2, -2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-1, -2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 0, -2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 1, -2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 2, -2)));
         
-  csum += f(cmin, cmax, ivec2(-2, -1));
-  csum += f(cmin, cmax, ivec2(-1, -1));
-  csum += f(cmin, cmax, ivec2( 0, -1));
-  csum += f(cmin, cmax, ivec2( 1, -1));
-  csum += f(cmin, cmax, ivec2( 2, -1));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-2, -1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-1, -1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 0, -1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 1, -1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 2, -1)));
         
-  csum += f(cmin, cmax, ivec2(-2,  0));
-  csum += f(cmin, cmax, ivec2(-1,  0));
-  csum += f(cmin, cmax, ivec2( 1,  0));
-  csum += f(cmin, cmax, ivec2( 2,  0));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-2,  0)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-1,  0)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 1,  0)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 2,  0)));
         
-  csum += f(cmin, cmax, ivec2(-2,  1));
-  csum += f(cmin, cmax, ivec2(-1,  1));
-  csum += f(cmin, cmax, ivec2( 0,  1));
-  csum += f(cmin, cmax, ivec2( 1,  1));
-  csum += f(cmin, cmax, ivec2( 2,  1));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-2,  1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-1,  1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 0,  1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 1,  1)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 2,  1)));
         
-  csum += f(cmin, cmax, ivec2(-2,  2));
-  csum += f(cmin, cmax, ivec2(-1,  2));
-  csum += f(cmin, cmax, ivec2( 0,  2));
-  csum += f(cmin, cmax, ivec2( 1,  2));
-  csum += f(cmin, cmax, ivec2( 2,  2));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-2,  2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2(-1,  2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 0,  2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 1,  2)));
+  f(csum, cmin, cmax, textureOffset(image, gl_FragCoord.xy, ivec2( 2,  2)));
 
   fc = (csum - cmin - cmax) * 0.043478261;
 }
