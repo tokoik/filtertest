@@ -8,17 +8,16 @@ layout (location = 0) out vec4 fc;
 
 // 分散
 const float variance1 = 1.0;
-const float variance2 = 100.0;
+const float variance2 = 0.001;
 
 // 重み付き画素値の合計と重みの合計を求める
 void f(inout vec4 csum, inout vec4 wsum, const in vec4 base, const in vec4 c, const in ivec2 o)
 {
-  vec2 x = vec2(o);
-  float w = exp(-0.5 * dot(x, x) / variance1);
+  float w = exp(-0.5 * dot(o, o) / variance1);
   vec4 d = c - base;
   vec4 e = exp(-0.5 * d * d / variance2) * w;
-  csum += c * w;
-  wsum += w;
+  csum += c * e;
+  wsum += e;
 }
 
 // 平均を求める

@@ -12,8 +12,7 @@ const float variance = 1.0;
 // 重み付き画素値の合計と重みの合計を求める
 void f(inout vec4 csum, inout vec4 wsum, const in vec4 c, const in ivec2 o)
 {
-  vec2 x = vec2(o);
-  float w = exp(-0.5 * dot(x, x) / variance);
+  float w = exp(-0.5 * dot(o, o) / variance);
   csum += c * w;
   wsum += w;
 }
