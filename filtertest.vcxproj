@@ -83,6 +83,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="bilateral.frag" />
+    <None Include="canny.frag" />
     <None Include="gaussian.frag" />
     <None Include="mean3.frag" />
     <None Include="mean5.frag" />

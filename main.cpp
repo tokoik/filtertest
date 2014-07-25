@@ -222,7 +222,7 @@ int main()
   // プログラムオブジェクトの作成
   const GLuint program[] =
   {
-    ggLoadShader("simple.vert", "simple.frag"),
+    ggLoadShader("simple.vert", "canny.frag"),
     ggLoadShader("simple.vert", "mean3.frag"),
     ggLoadShader("simple.vert", "mean5.frag"),
     ggLoadShader("simple.vert", "mean7.frag"),

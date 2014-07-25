@@ -51,6 +51,9 @@
     <None Include="trimmean7.frag">
       <Filter>シェーダー ファイル</Filter>
     </None>
+    <None Include="canny.frag">
+      <Filter>シェーダー ファイル</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gg.cpp">
