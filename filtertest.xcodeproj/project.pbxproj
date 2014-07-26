@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7D1BC111198322E500150D95 /* canny.frag in Resources */ = {isa = PBXBuildFile; fileRef = 7D1BC110198322E500150D95 /* canny.frag */; };
 		7D7AF85F1222C8CC003A0434 /* opengl.icns in Resources */ = {isa = PBXBuildFile; fileRef = 7D7AF85E1222C8CC003A0434 /* opengl.icns */; };
 		7D82FFEA1939952200EA4995 /* bilateral.frag in Resources */ = {isa = PBXBuildFile; fileRef = 7D82FFE81939952200EA4995 /* bilateral.frag */; };
 		7D82FFEC1939952A00EA4995 /* gaussian.frag in Resources */ = {isa = PBXBuildFile; fileRef = 7D82FFEB1939952A00EA4995 /* gaussian.frag */; };
@@ -27,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		7D13A1A6193AAC9A00030D2E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
+		7D1BC110198322E500150D95 /* canny.frag */ = {isa = PBXFileReference; fileEncoding = 8; lastKnownFileType = sourcecode.glsl; path = canny.frag; sourceTree = "<group>"; };
 		7D1E90EE1123E36C005E6C75 /* filtertest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = filtertest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7D1E90F11123E36C005E6C75 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7D7AF85E1222C8CC003A0434 /* opengl.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = opengl.icns; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 				7D8F50021937736A00AF67C4 /* gg.h */,
 				7D8F50011937736A00AF67C4 /* gg.cpp */,
 				7D82FFED1939954000EA4995 /* simple.vert */,
+				7D1BC110198322E500150D95 /* canny.frag */,
 				7D82FFEF193998A800EA4995 /* simple.frag */,
 				7D82FFF11939C25F00EA4995 /* mean3.frag */,
 				7D82FFF21939C25F00EA4995 /* mean5.frag */,
@@ -150,6 +153,7 @@
 			files = (
 				7D7AF85F1222C8CC003A0434 /* opengl.icns in Resources */,
 				7D82FFEE1939954000EA4995 /* simple.vert in Resources */,
+				7D1BC111198322E500150D95 /* canny.frag in Resources */,
 				7D82FFF0193998C600EA4995 /* simple.frag in Resources */,
 				7D82FFEC1939952A00EA4995 /* gaussian.frag in Resources */,
 				7D82FFEA1939952200EA4995 /* bilateral.frag in Resources */,
