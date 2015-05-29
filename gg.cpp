@@ -23,6 +23,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **
 */
 
+// 標準ライブラリ
 #include <cmath>
 #include <cfloat>
 #include <cstdlib>
@@ -34,6 +35,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <map>
 #include <algorithm>
 
+// クラス定義
 #include "gg.h"
 
 #if defined(_WIN32)
@@ -4494,7 +4496,7 @@ void gg::ggInit()
 {
 #if defined(_WIN32)
   // OpenGL 1.2 以降の API を有効化する
-  if (glCreateProgram == NULL) initGLExtFunc();
+  if (glCreateProgram == nullptr) initGLExtFunc();
 #endif
 }
 
@@ -4503,7 +4505,7 @@ void gg::ggInit()
 **
 **   OpenGL の API を呼び出し直後に実行すればエラーのあるときにメッセージを表示する.
 **
-**   \param msg エラー発生時に標準エラー出力に出力する文字列. NULL なら何も出力しない.
+**   \param msg エラー発生時に標準エラー出力に出力する文字列. nullptr なら何も出力しない.
 */
 void gg::ggError(const char *msg)
 {
@@ -4542,7 +4544,7 @@ void gg::ggError(const char *msg)
 **
 **   FBO の API を呼び出し直後に実行すればエラーのあるときにメッセージを表示する.
 **
-**   \param msg エラー発生時に標準エラー出力に出力する文字列. NULL なら何も出力しない.
+**   \param msg エラー発生時に標準エラー出力に出力する文字列. nullptr なら何も出力しない.
 */
 void gg::ggFBOError(const char *msg)
 {
@@ -4586,15 +4588,16 @@ void gg::ggFBOError(const char *msg)
 **   \param name ファイル名.
 **   \return 保存に成功したら true.
 */
-bool gg::ggSaveTga(GLsizei sx, GLsizei sy, unsigned int depth, const GLubyte *buffer, const char *name)
+bool gg::ggSaveTga(GLsizei sx, GLsizei sy, unsigned int depth,
+  const GLubyte *buffer, const char *name)
 {
   // ファイルを開く
   std::ofstream file(name, std::ios::binary);
 
   // ファイルが開けなかったら戻る
-  if (file.fail())
+  if (!file)
   {
-    std::cerr << "Waring: Can't open file: " << name << std::endl;
+    std::cerr << "Error: Can't open file: " << name << std::endl;
     return false;
   }
 
@@ -4603,29 +4606,30 @@ bool gg::ggSaveTga(GLsizei sx, GLsizei sy, unsigned int depth, const GLubyte *bu
   {
     0,          // ID length
     0,          // Color map type (none)
-    static_cast<unsigned char>((depth == 3) ? 2 : 3), // Image Type (2:RGB, 3:Grayscale)
+    (unsigned char)((depth == 3) ? 2 : 3), // Image Type (2:RGB, 3:Grayscale)
     0, 0,       // Offset into the color map table
     0, 0,       // Number of color map entries
     0,          // Number of a color map entry bits per pixel
     0, 0,       // Horizontal image position
     0, 0,       // Vertical image position
-    static_cast<unsigned char>(sx & 0xff),
-    static_cast<unsigned char>(sx >> 8),
-    static_cast<unsigned char>(sy & 0xff),
-    static_cast<unsigned char>(sy >> 8),
-    static_cast<unsigned char>(8 * depth),  // Pixel depth (bits per pixel)
+    (unsigned char)(sx & 0xff),
+    (unsigned char)(sx >> 8),
+    (unsigned char)(sy & 0xff),
+    (unsigned char)(sy >> 8),
+    (unsigned char)(8 * depth),  // Pixel depth (bits per pixel)
     0           // Image descriptor
   };
 
   // ヘッダを書き込む
   file.write(reinterpret_cast<const char *>(header), sizeof header);
 
-  // ヘッダの書き込みに失敗したら戻る
+  // ヘッダの書き込みチェック
   if (file.bad())
   {
-    std::cerr << "Waring: Can't write file header: " << name << std::endl;
+    // ヘッダの書き込みに失敗した
+    std::cerr << "Error: Can't write file header: " << name << std::endl;
     file.close();
-    return 0;
+    return false;
   }
 
   // データを書き込む
@@ -4635,11 +4639,13 @@ bool gg::ggSaveTga(GLsizei sx, GLsizei sy, unsigned int depth, const GLubyte *bu
   static const char footer[] = "\0\0\0\0\0\0\0\0TRUEVISION-XFILE.";
   file.write(footer, sizeof footer);
 
-  // 書き込みチェック
+  // データの書き込みチェック
   if (file.bad())
   {
-    // 書き込みに失敗した
-    std::cerr << "Waring: Can't write image data: " << name << std::endl;
+    // データの書き込みに失敗した
+    std::cerr << "Error: Can't write image data: " << name << std::endl;
+    file.close();
+    return false;
   }
 
   // ファイルを閉じる
@@ -4709,7 +4715,7 @@ bool gg::ggSaveDepth(const char *name)
 **   \param width 読み込んだファイルの幅.
 **   \param height 読み込んだファイルの高さ.
 **   \param format 読み込んだファイルのフォーマット.
-**   \return 読み込んだ画像データのポインタ (要 delete, 読み込めなければ NULL)
+**   \return 読み込んだ画像データのポインタ (要 delete, 読み込めなければ nullptr)
 */
 GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum *format)
 {
@@ -4717,10 +4723,10 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
   std::ifstream file(name, std::ios::binary);
 
   // ファイルが開けなかったら戻る
-  if (file.fail())
+  if (!file)
   {
-    std::cerr << "Waring: Can't open file: " << name << std::endl;
-    return NULL;
+    std::cerr << "Error: Can't open file: " << name << std::endl;
+    return nullptr;
   }
 
   // ヘッダを読み込む
@@ -4730,9 +4736,9 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
   // ヘッダの読み込みに失敗したら戻る
   if (file.bad())
   {
-    std::cerr << "Waring: Can't read file header: " << name << std::endl;
+    std::cerr << "Error: Can't read file header: " << name << std::endl;
     file.close();
-    return NULL;
+    return nullptr;
   }
 
   // 幅と高さ
@@ -4757,9 +4763,9 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
     break;
   default:
     // 取り扱えないフォーマットだったら戻る
-    std::cerr << "Waring: Unusable format: " << depth << std::endl;
+    std::cerr << "Error: Unusable format: " << depth << std::endl;
     file.close();
-    return NULL;
+    return nullptr;
   }
 
   // データサイズ
@@ -4769,11 +4775,11 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
   GLubyte *const buffer(new(std::nothrow) GLubyte[size]);
 
   // メモリが確保できなければ戻る
-  if (buffer == NULL)
+  if (buffer == nullptr)
   {
-    std::cerr << "Waring: Too large file: " << name << std::endl;
+    std::cerr << "Error: Too large file: " << name << std::endl;
     file.close();
-    return NULL;
+    return nullptr;
   }
 
   // データを読み込む
@@ -4835,7 +4841,8 @@ GLubyte *gg::ggLoadTga(const char *name, GLsizei *width, GLsizei *height, GLenum
 **   \param image 画像データ.
 **   \return テクスチャオブジェクト名.
 */
-GLuint gg::ggLoadTexture(GLsizei width, GLsizei height, GLenum internal, GLenum format, const GLvoid *image)
+GLuint gg::ggLoadTexture(GLsizei width, GLsizei height, GLenum internal,
+  GLenum format, const GLvoid *image)
 {
   // テクスチャオブジェクト
   GLuint tex;
@@ -4873,11 +4880,11 @@ GLuint gg::ggLoadImage(const char *name, GLenum internal)
   // 画像フォーマット
   GLenum format;
 
-  // 画像がぞうを読み込む
+  // 画像を読み込む
   const GLubyte *const image(ggLoadTga(name, &width, &height, &format));
 
   // 画像が読み込めなかったら戻る
-  if (image == NULL) return 0;
+  if (image == nullptr) return 0;
 
   // internal == 0 なら内部フォーマットを読み込んだファイルに合わせる
   if (internal == 0)
@@ -4922,11 +4929,11 @@ GLuint gg::ggLoadHeight(const char *name, float nz, GLenum internal)
   // 画像フォーマット
   GLenum format;
 
-  //高さマップの 画像を読み込む
+  //高さマップの画像を読み込む
   const GLubyte *const hmap(ggLoadTga(name, &width, &height, &format));
 
   // 画像が読み込めなかったら戻る
-  if (hmap == NULL) return 0;
+  if (hmap == nullptr) return 0;
 
   // 画素のバイト数
   int bytes;
@@ -4956,7 +4963,7 @@ GLuint gg::ggLoadHeight(const char *name, float nz, GLenum internal)
   GLfloat (*const nmap)[4](new(std::nothrow) GLfloat[maxsize][4]);
 
   // メモリが確保できなければ戻る
-  if (nmap == NULL)
+  if (nmap == nullptr)
   {
     delete[] hmap;
     return 0;
@@ -4972,8 +4979,8 @@ GLuint gg::ggLoadHeight(const char *name, float nz, GLenum internal)
     const int v(((y + width) % maxsize + x) * bytes);
 
     // 隣接する画素との値の差を法線の成分に用いる
-    const float nx(static_cast<float>(hmap[u] - hmap[o]));
-    const float ny(static_cast<float>(hmap[v] - hmap[o]));
+    const float nx(float(hmap[u] - hmap[o]));
+    const float ny(float(hmap[v] - hmap[o]));
 
     // 法線の長さを求めておく
     const float nl(sqrt(nx * nx + ny * ny + nz * nz));
@@ -5091,7 +5098,7 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
   std::ifstream file(name, std::ios::binary);
 
   // ファイルが開けなかったら戻る
-  if (file.fail())
+  if (!file)
   {
     std::cerr << "Error: Can't open OBJ file: " << name << std::endl;
     return false;
@@ -5105,8 +5112,8 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
   xmax = ymax = zmax = -(xmin = ymin = zmin = FLT_MAX);
 
   // 頂点位置の一時保存
-  std::vector<vec> _pos;
-  std::vector<idx> _face;
+  std::vector<vec> tpos;
+  std::vector<idx> tface;
 
   // データを読み込む
   while (std::getline(file, line))
@@ -5132,7 +5139,7 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
       zmax = std::max(zmax, v.z);
 
       // 頂点データを保存する
-      _pos.push_back(v);
+      tpos.push_back(v);
     }
     else if (op == "f")
     {
@@ -5149,7 +5156,7 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
       }
 
       // 面データを保存する
-      _face.push_back(f);
+      tface.push_back(f);
     }
   }
 
@@ -5159,13 +5166,15 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
     // うまく読み込めなかった
     std::cerr << "Warning: Can't read OBJ file: " << name << std::endl;
   }
+
+  // ファイルを閉じる
   file.close();
 
   // メモリの確保
-  pos = norm = NULL;
-  face = NULL;
-  nv = _pos.size();
-  nf = _face.size();
+  pos = norm = nullptr;
+  face = nullptr;
+  nv = static_cast<GLuint>(tpos.size());
+  nf = static_cast<GLuint>(tface.size());
   try
   {
     pos = new GLfloat[nv][3];
@@ -5178,8 +5187,8 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
     delete[] norm;
     delete[] face;
 
-    pos = norm = NULL;
-    face = NULL;
+    pos = norm = nullptr;
+    face = nullptr;
 
     return false;
   }
@@ -5208,9 +5217,9 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
   }
 
   // 図形の大きさと位置の正規化とデータのコピー
-  for (std::vector<vec>::const_iterator it = _pos.begin(); it != _pos.end(); ++it)
+  for (std::vector<vec>::const_iterator it = tpos.begin(); it != tpos.end(); ++it)
   {
-    const size_t v = it - _pos.begin();
+    const size_t v = it - tpos.begin();
 
     pos[v][0] = (it->x - cx) * scale;
     pos[v][1] = (it->y - cy) * scale;
@@ -5221,9 +5230,9 @@ bool gg::ggLoadObj(const char *name, GLuint &nv, GLfloat (*&pos)[3], GLfloat (*&
   std::fill(static_cast<GLfloat *>(&norm[0][0]), static_cast<GLfloat *>(&norm[nv][0]), 0.0f);
 
   // 面の法線の算出とデータのコピー
-  for (std::vector<idx>::const_iterator it = _face.begin(); it != _face.end(); ++it)
+  for (std::vector<idx>::const_iterator it = tface.begin(); it != tface.end(); ++it)
   {
-    const size_t f(it - _face.begin());
+    const size_t f(it - tface.begin());
 
     // 頂点座標番号を取り出す
     const GLuint v0(face[f][0] = it->p[0] - 1);
@@ -5295,11 +5304,11 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
 {
   // 引数に初期値を設定する
   ng = 0;
-  group = NULL;
-  amb = diff = spec = NULL;
-  shi = NULL;
+  group = nullptr;
+  amb = diff = spec = nullptr;
+  shi = nullptr;
   nv = 0;
-  pos = norm = NULL;
+  pos = norm = nullptr;
 
   // ファイルパスからディレクトリ名を取り出す
   std::string path(name);
@@ -5310,7 +5319,7 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
   std::ifstream file(path.c_str());
 
   // 読み込みに失敗したら戻る
-  if (file.fail())
+  if (!file)
   {
     std::cerr << "Error: Can't open OBJ file: " << path << std::endl;
     return false;
@@ -5335,11 +5344,11 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
   mtl[mtlname].dis = 1.0f;
 
   // 読み込み用の一時記憶領域
-  std::vector<vec> _pos;
-  std::vector<vec> _tex;
-  std::vector<vec> _norm;
-  std::vector<idx> _face;
-  std::vector<grp> _group;
+  std::vector<vec> tpos;
+  std::vector<vec> ttex;
+  std::vector<vec> tnorm;
+  std::vector<idx> tface;
+  std::vector<grp> tgroup;
 
   // グループの開始番号
   GLuint groupbegin(0);
@@ -5384,7 +5393,7 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       zmax = std::max(zmax, v.z);
 
       // 頂点位置を記録する
-      _pos.push_back(v);
+      tpos.push_back(v);
     }
     else if (op == "vt")
     {
@@ -5395,7 +5404,7 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       str >> t.x >> t.y;
 
       // テクスチャ座標を記録する
-      _tex.push_back(t);
+      ttex.push_back(t);
     }
     else if (op == "vn")
     {
@@ -5406,7 +5415,7 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       str >> n.x >> n.y >> n.z;
 
       // 頂点法線を記録する
-      _norm.push_back(n);
+      tnorm.push_back(n);
     }
     else if (op == "f")
     {
@@ -5451,7 +5460,7 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       }
 
       // 面データの記録ｊ
-      _face.push_back(f);
+      tface.push_back(f);
     }
     else if (op == "s")
     {
@@ -5463,12 +5472,12 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
     else if (op == "usemtl")
     {
       // 面グループの面数
-      GLuint groupcount(static_cast<GLuint>(_face.size()) * 3 - groupbegin);
+      GLuint groupcount(static_cast<GLuint>(tface.size()) * 3 - groupbegin);
       if (groupcount > 0)
       {
         // 面グループの頂点データの開始番号と数，およびそのマテリアルを記録する
         grp b(groupbegin, groupcount, mtl[mtlname]);
-        _group.push_back(b);
+        tgroup.push_back(b);
 
         // 次の面グループの開始番号を求めておく
         groupbegin += groupcount;
@@ -5496,10 +5505,11 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       std::getline(str, mtlpath);
       mtlpath = dirname + mtlpath;
 
-      // MTL ファイルの読み込み
+      // MTL ファイルを開く
       std::ifstream mtlfile(mtlpath.c_str(), std::ios::binary);
-      if (mtlfile.fail())
+      if (!mtlfile)
       {
+        // MTL ファイルが無いとき
         std::cerr << "Warning: Can't open MTL file: " << mtlpath << std::endl;
       }
       else
@@ -5562,39 +5572,41 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
   if (file.bad())
   {
     // OBJ ファイルをうまく読み込めなかった
-    std::cerr << "Warning: Can't read OBJ file: " << path << std::endl;
+    std::cerr << "Error: Can't read OBJ file: " << path << std::endl;
+    file.close();
+    return false;
   }
-  else
-  {
-    // 最後の面グループの面数
-    GLuint groupcount(static_cast<GLuint>(_face.size()) * 3 - groupbegin);
-    if (groupcount > 0)
-    {
-      // 最後の面グループの頂点データの開始番号と数，およびそのマテリアルを記録する
-      grp b(groupbegin, groupcount, mtl[mtlname]);
-      _group.push_back(b);
-    }
-  }
+
+  // ファイルを閉じる
   file.close();
 
+  // 最後の面グループの面数
+  GLuint groupcount(static_cast<GLuint>(tface.size()) * 3 - groupbegin);
+  if (groupcount > 0)
+  {
+    // 最後の面グループの頂点データの開始番号と数，およびそのマテリアルを記録する
+    grp b(groupbegin, groupcount, mtl[mtlname]);
+    tgroup.push_back(b);
+  }
+
   // 必要な面数
-  const GLuint nf(static_cast<GLuint>(_face.size()));
+  const GLuint nf(static_cast<GLuint>(tface.size()));
 
   // メモリの確保
   try
   {
     // 必要な頂点数
     nv = nf * 3;
-    pos = norm = NULL;
+    pos = norm = nullptr;
 
     pos = new GLfloat[nv][3];
     norm = new GLfloat[nv][3];
 
     // 必要なグループ数
-    ng = static_cast<GLuint>(_group.size());
-    group = NULL;
-    amb = diff = spec = NULL;
-    shi = NULL;
+    ng = static_cast<GLuint>(tgroup.size());
+    group = nullptr;
+    amb = diff = spec = nullptr;
+    shi = nullptr;
 
     group = new GLuint[ng][2];
     amb = new GLfloat[ng][4];
@@ -5608,7 +5620,7 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
     delete[] norm;
 
     nv = 0;
-    pos = norm = NULL;
+    pos = norm = nullptr;
 
     delete[] group;
     delete[] amb;
@@ -5617,9 +5629,9 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
     delete[] shi;
 
     ng = 0;
-    group = NULL;
-    amb = diff = spec = NULL;
-    shi = NULL;
+    group = nullptr;
+    amb = diff = spec = nullptr;
+    shi = nullptr;
 
     return false;
   }
@@ -5648,14 +5660,14 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
   }
 
   // 法線データがなければ算出しておく
-  if (_norm.empty())
+  if (tnorm.empty())
   {
     // 法線データ数の初期値は頂点数と同じでスムーズシェーディングのために初期値は 0
     static const vec zero = { 0.0f, 0.0f, 0.0f };
-    _norm.resize(_pos.size(), zero);
+    tnorm.resize(tpos.size(), zero);
 
     // 面の法線の算出と頂点法線の算出
-    for (std::vector<idx>::iterator it = _face.begin(); it != _face.end(); ++it)
+    for (std::vector<idx>::iterator it = tface.begin(); it != tface.end(); ++it)
     {
       // 頂点座標番号
       const GLuint v0(it->p[0] - 1);
@@ -5663,12 +5675,12 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       const GLuint v2(it->p[2] - 1);
 
       // v1 - v0, v2 - v0 を求める
-      const GLfloat dx1(_pos[v1].x - _pos[v0].x);
-      const GLfloat dy1(_pos[v1].y - _pos[v0].y);
-      const GLfloat dz1(_pos[v1].z - _pos[v0].z);
-      const GLfloat dx2(_pos[v2].x - _pos[v0].x);
-      const GLfloat dy2(_pos[v2].y - _pos[v0].y);
-      const GLfloat dz2(_pos[v2].z - _pos[v0].z);
+      const GLfloat dx1(tpos[v1].x - tpos[v0].x);
+      const GLfloat dy1(tpos[v1].y - tpos[v0].y);
+      const GLfloat dz1(tpos[v1].z - tpos[v0].z);
+      const GLfloat dx2(tpos[v2].x - tpos[v0].x);
+      const GLfloat dy2(tpos[v2].y - tpos[v0].y);
+      const GLfloat dz2(tpos[v2].z - tpos[v0].z);
 
       // 外積により面法線を求める
       GLfloat nx(dy1 * dz2 - dz1 * dy2);
@@ -5678,15 +5690,15 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       if (it->smooth)
       {
         // 面法線を頂点法線に積算する
-        _norm[v0].x += nx;
-        _norm[v0].y += ny;
-        _norm[v0].z += nz;
-        _norm[v1].x += nx;
-        _norm[v1].y += ny;
-        _norm[v1].z += nz;
-        _norm[v2].x += nx;
-        _norm[v2].y += ny;
-        _norm[v2].z += nz;
+        tnorm[v0].x += nx;
+        tnorm[v0].y += ny;
+        tnorm[v0].z += nz;
+        tnorm[v1].x += nx;
+        tnorm[v1].y += ny;
+        tnorm[v1].z += nz;
+        tnorm[v2].x += nx;
+        tnorm[v2].y += ny;
+        tnorm[v2].z += nz;
 
         // 面データを更新する
         it->n[0] = it->p[0];
@@ -5705,19 +5717,19 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
         }
 
         // 3 頂点追加
-        const size_t v(_norm.size());
-        _norm.resize(v + 3);
+        const GLuint v(static_cast<GLuint>(tnorm.size()));
+        tnorm.resize(v + 3);
 
         // 正規化した面法線をそのまま頂点法線にする
-        _norm[v + 0].x = nx;
-        _norm[v + 0].y = ny;
-        _norm[v + 0].z = nz;
-        _norm[v + 1].x = nx;
-        _norm[v + 1].y = ny;
-        _norm[v + 1].z = nz;
-        _norm[v + 2].x = nx;
-        _norm[v + 2].y = ny;
-        _norm[v + 2].z = nz;
+        tnorm[v + 0].x = nx;
+        tnorm[v + 0].y = ny;
+        tnorm[v + 0].z = nz;
+        tnorm[v + 1].x = nx;
+        tnorm[v + 1].y = ny;
+        tnorm[v + 1].z = nz;
+        tnorm[v + 2].x = nx;
+        tnorm[v + 2].y = ny;
+        tnorm[v + 2].z = nz;
 
         // 面データを更新する
         it->n[0] = v + 1;
@@ -5728,9 +5740,9 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
   }
 
   // 面ごとの頂点データの作成
-  for (std::vector<idx>::const_iterator it = _face.begin(); it != _face.end(); ++it)
+  for (std::vector<idx>::const_iterator it = tface.begin(); it != tface.end(); ++it)
   {
-    const size_t f((it - _face.begin()) * 3);
+    const GLuint f(static_cast<GLuint>((it - tface.begin()) * 3));
 
     // 三頂点のそれぞれについて
     for (int i = 0; i < 3; ++i)
@@ -5744,9 +5756,9 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
         --p;
 
         // 頂点座標を正規化して登録する
-        pos[v][0] = (_pos[p].x - cx) * scale;
-        pos[v][1] = (_pos[p].y - cy) * scale;
-        pos[v][2] = (_pos[p].z - cz) * scale;
+        pos[v][0] = (tpos[p].x - cx) * scale;
+        pos[v][1] = (tpos[p].y - cy) * scale;
+        pos[v][2] = (tpos[p].z - cz) * scale;
       }
 
 #if 0
@@ -5757,8 +5769,8 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
         --t;
 
         // テクスチャ座標を登録する
-        tex[v][0] = _tex[t].x;
-        tex[v][1] = _tex[t].y;
+        tex[v][0] = ttex[t].x;
+        tex[v][1] = ttex[t].y;
       }
 #endif
 
@@ -5768,9 +5780,9 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
       {
         --n;
 
-        GLfloat nx(_norm[n].x);
-        GLfloat ny(_norm[n].y);
-        GLfloat nz(_norm[n].z);
+        GLfloat nx(tnorm[n].x);
+        GLfloat ny(tnorm[n].y);
+        GLfloat nz(tnorm[n].z);
 
         if (it->smooth)
         {
@@ -5792,9 +5804,9 @@ bool gg::ggLoadObj(const char *name, GLuint &ng, GLuint (*&group)[2],
   }
 
   // 面グループデータの作成
-  for (std::vector<grp>::const_iterator it = _group.begin(); it != _group.end(); ++it)
+  for (std::vector<grp>::const_iterator it = tgroup.begin(); it != tgroup.end(); ++it)
   {
-    const size_t g(it - _group.begin());
+    const size_t g(it - tgroup.begin());
 
     // 面グループの最初の頂点位置番号
     group[g][0] = it->b;
@@ -5850,7 +5862,7 @@ static GLboolean printShaderInfoLog(GLuint shader, const char *str)
     std::cerr << &infoLog[0] << std::endl;
   }
 
-  return (GLboolean)status;
+  return static_cast<GLboolean>(status);
 }
 
 /*
@@ -5877,24 +5889,24 @@ static GLboolean printProgramInfoLog(GLuint program)
   }
 
   // リンク結果を返す
-  return (GLboolean)status;
+  return static_cast<GLboolean>(status);
 }
 
 /*!
 ** \brief シェーダのソースプログラムの文字列を読み込んでプログラムオブジェクトを作成する.
 **
 **   \param vsrc バーテックスシェーダのソースプログラムの文字列.
-**   \param fsrc フラグメントシェーダのソースプログラムの文字列 (NULL なら不使用).
-**   \param gsrc ジオメトリシェーダのソースプログラムの文字列 (NULL なら不使用).
+**   \param fsrc フラグメントシェーダのソースプログラムの文字列 (nullptr なら不使用).
+**   \param gsrc ジオメトリシェーダのソースプログラムの文字列 (nullptr なら不使用).
 **   \param nvarying フィードバックする varying 変数の数 (0 なら不使用).
-**   \param varyings フィードバックする varying 変数のリスト (NULL なら不使用).
+**   \param varyings フィードバックする varying 変数のリスト (nullptr なら不使用).
 **   \param vtext バーテックスシェーダのコンパイル時のメッセージに追加する文字列.
 **   \param ftext フラグメントシェーダのコンパイル時のメッセージに追加する文字列.
 **   \param gtext ジオメトリシェーダのコンパイル時のメッセージに追加する文字列.
 **   \return シェーダプログラムのプログラム名 (作成できなければ 0).
 */
 GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
-  GLint nvarying, const char **varyings,
+  GLint nvarying, const char *const *varyings,
   const char *vtext, const char *ftext, const char *gtext)
 {
   // シェーダプログラムの作成
@@ -5906,7 +5918,7 @@ GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
     {
       // バーテックスシェーダのシェーダオブジェクトを作成する
       const GLuint vertShader(glCreateShader(GL_VERTEX_SHADER));
-      glShaderSource(vertShader, 1, &vsrc, NULL);
+      glShaderSource(vertShader, 1, &vsrc, nullptr);
       glCompileShader(vertShader);
 
       // バーテックスシェーダのシェーダオブジェクトをプログラムオブジェクトに組み込む
@@ -5919,7 +5931,7 @@ GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
     {
       // フラグメントシェーダのシェーダオブジェクトを作成する
       const GLuint fragShader(glCreateShader(GL_FRAGMENT_SHADER));
-      glShaderSource(fragShader, 1, &fsrc, NULL);
+      glShaderSource(fragShader, 1, &fsrc, nullptr);
       glCompileShader(fragShader);
 
       // フラグメントシェーダのシェーダオブジェクトをプログラムオブジェクトに組み込む
@@ -5932,7 +5944,7 @@ GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
     {
       // ジオメトリシェーダのシェーダオブジェクトを作成する
       const GLuint geomShader(glCreateShader(GL_GEOMETRY_SHADER));
-      glShaderSource(geomShader, 1, &gsrc, NULL);
+      glShaderSource(geomShader, 1, &gsrc, nullptr);
       glCompileShader(geomShader);
 
       // ジオメトリシェーダのシェーダオブジェクトをプログラムオブジェクトに組み込む
@@ -5965,17 +5977,17 @@ GLuint gg::ggCreateShader(const char *vsrc, const char *fsrc, const char *gsrc,
 */
 static GLchar *readShaderSource(const char *name)
 {
-  // ファイル名が NULL なら NULL を返す
-  if (name == NULL) return NULL;
+  // ファイル名が nullptr なら nullptr を返す
+  if (name == nullptr) return nullptr;
 
   // ソースファイルを開く
   std::ifstream file(name, std::ios::binary);
 
   // ファイルが開けなければ戻る
-  if (file.fail())
+  if (!file)
   {
     std::cerr << "Error: Can't open source file: " << name << std::endl;
-    return NULL;
+    return nullptr;
   }
 
   // ファイルの末尾に移動し現在位置（＝ファイルサイズ）を得る
@@ -5986,11 +5998,11 @@ static GLchar *readShaderSource(const char *name)
   GLchar *buffer(new(std::nothrow) GLchar[length + 1]);
 
   // メモリが確保できなければ戻る
-  if (buffer == NULL)
+  if (buffer == nullptr)
   {
     std::cerr << "Error: Too large file: " << name << std::endl;
     file.close();
-    return NULL;
+    return nullptr;
   }
 
   // ファイルを先頭から読み込む
@@ -6003,7 +6015,7 @@ static GLchar *readShaderSource(const char *name)
   {
     std::cerr << "Error: Could not read souce file: " << name << std::endl;
     delete[] buffer;
-    buffer = NULL;
+    buffer = nullptr;
   }
 
   // ファイルを閉じる
@@ -6017,14 +6029,14 @@ static GLchar *readShaderSource(const char *name)
 ** \brief シェーダのソースファイルを読み込んでプログラムオブジェクトを作成する.
 **
 **   \param vert バーテックスシェーダのソースファイル名.
-**   \param frag フラグメントシェーダのソースファイル名 (NULL なら不使用).
-**   \param geom ジオメトリシェーダのソースファイル名 (NULL なら不使用).
+**   \param frag フラグメントシェーダのソースファイル名 (nullptr なら不使用).
+**   \param geom ジオメトリシェーダのソースファイル名 (nullptr なら不使用).
 **   \param nvarying フィードバックする varying 変数の数 (0 なら不使用).
-**   \param varyings フィードバックする varying 変数のリスト (NULL なら不使用).
+**   \param varyings フィードバックする varying 変数のリスト (nullptr なら不使用).
 **   \return シェーダプログラムのプログラム名 (作成できなければ 0).
 */
 GLuint gg::ggLoadShader(const char *vert, const char *frag, const char *geom,
-  GLint nvarying, const char **varyings)
+  GLint nvarying, const char *const *varyings)
 {
   // シェーダのソースファイルを読み込む
   const GLchar *const vsrc(readShaderSource(vert));
@@ -6334,43 +6346,41 @@ gg::GgMatrix &gg::GgMatrix::loadLookat(GLfloat ex, GLfloat ey, GLfloat ez,
   GLfloat ux, GLfloat uy, GLfloat uz)
 {
   // z 軸 = e - t
-  GLfloat zx = ex - tx;
-  GLfloat zy = ey - ty;
-  GLfloat zz = ez - tz;
-  const GLfloat zl = sqrt(zx * zx + zy * zy + zz * zz);
-  if (zl == 0.0f) return *this;
-
-  // z 軸の正規化
-  zx /= zl;
-  zy /= zl;
-  zz /= zl;
+  const GLfloat zx(ex - tx);
+  const GLfloat zy(ey - ty);
+  const GLfloat zz(ez - tz);
 
   // x 軸 = u x z 軸
-  GLfloat xx = uy * zz - uz * zy;
-  GLfloat xy = uz * zx - ux * zz;
-  GLfloat xz = ux * zy - uy * zx;
-  const GLfloat xl = sqrt(xx * xx + xy * xy + xz * xz);
-  if (xl == 0.0f) return *this;
-
-  // x 軸の正規化
-  xx /= xl;
-  xy /= xl;
-  xz /= xl;
-
-  // z 軸
-  array[ 2] = zx;
-  array[ 6] = zy;
-  array[10] = zz;
-
-  // x 軸
-  array[ 0] = xx;
-  array[ 4] = xy;
-  array[ 8] = xz;
+  const GLfloat xx(uy * zz - uz * zy);
+  const GLfloat xy(uz * zx - ux * zz);
+  const GLfloat xz(ux * zy - uy * zx);
 
   // y 軸 = z 軸 x x 軸
-  array[ 1] = zy * xz - zz * xy;
-  array[ 5] = zz * xx - zx * xz;
-  array[ 9] = zx * xy - zy * xx;
+  const GLfloat yx(zy * xz - zz * xy);
+  const GLfloat yy(zz * xx - zx * xz);
+  const GLfloat yz(zx * xy - zy * xx);
+
+  // y 軸の長さをチェック
+  GLfloat y(yx * yx + yy * yy + yz * yz);
+  if (y == 0.0f) return *this;
+
+  // x 軸の正規化
+  const GLfloat x(sqrt(xx * xx + xy * xy + xz * xz));
+  array[ 0] = xx / x;
+  array[ 4] = xy / x;
+  array[ 8] = xz / x;
+
+  // y 軸の正規化
+  y = sqrt(y);
+  array[ 1] = yx / y;
+  array[ 5] = yy / y;
+  array[ 9] = yz / y;
+
+  // z 軸の正規化
+  const GLfloat z(sqrt(zx * zx + zy * zy + zz * zz));
+  array[ 2] = zx / z;
+  array[ 6] = zy / z;
+  array[10] = zz / z;
 
   // 平行移動
   array[12] = -(ex * array[ 0] + ey * array[ 4] + ez * array[ 8]);
@@ -6387,7 +6397,8 @@ gg::GgMatrix &gg::GgMatrix::loadLookat(GLfloat ex, GLfloat ey, GLfloat ez,
 /*
 ** 変換行列：平行投影変換行列を設定する
 */
-gg::GgMatrix &gg::GgMatrix::loadOrthogonal(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+gg::GgMatrix &gg::GgMatrix::loadOrthogonal(GLfloat left, GLfloat right,
+  GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
 {
   const GLfloat dx(right - left);
   const GLfloat dy(top - bottom);
@@ -6413,7 +6424,8 @@ gg::GgMatrix &gg::GgMatrix::loadOrthogonal(GLfloat left, GLfloat right, GLfloat 
 /*
 ** 変換行列：透視投影変換行列を設定する
 */
-gg::GgMatrix &gg::GgMatrix::loadFrustum(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
+gg::GgMatrix &gg::GgMatrix::loadFrustum(GLfloat left, GLfloat right,
+  GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar)
 {
   const GLfloat dx(right - left);
   const GLfloat dy(top - bottom);
@@ -6439,7 +6451,8 @@ gg::GgMatrix &gg::GgMatrix::loadFrustum(GLfloat left, GLfloat right, GLfloat bot
 /*
 ** 変換行列：画角から透視投影変換行列を設定する
 */
-gg::GgMatrix &gg::GgMatrix::loadPerspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
+gg::GgMatrix &gg::GgMatrix::loadPerspective(GLfloat fovy, GLfloat aspect,
+  GLfloat zNear, GLfloat zFar)
 {
   const GLfloat dz(zFar - zNear);
 
@@ -6551,7 +6564,7 @@ void gg::GgQuaternion::slerp(GLfloat *p, const GLfloat *q, const GLfloat *r, GLf
 */
 gg::GgQuaternion &gg::GgQuaternion::loadRotate(GLfloat x, GLfloat y, GLfloat z, GLfloat a)
 {
-  GLfloat l(x * x + y * y + z * z);
+  const GLfloat l(x * x + y * y + z * z);
 
   if (l != 0.0)
   {
@@ -6586,9 +6599,9 @@ gg::GgQuaternion &gg::GgQuaternion::loadNormalize(const GgQuaternion &q)
   // ノルムを求める
   const GLfloat l(q.norm());
 
-  // ノルムで各要素を割る
   if (l > 0.0f)
   {
+    // ノルムで各要素を割る
     array[0] = q.array[0] / l;
     array[1] = q.array[1] / l;
     array[2] = q.array[2] / l;
@@ -6605,8 +6618,9 @@ gg::GgQuaternion &gg::GgQuaternion::loadConjugate(const GgQuaternion &q)
 {
   // 軸ベクトルを反転する
   array[0] = -q.array[0];
-  array[0] = -q.array[1];
-  array[0] = -q.array[2];
+  array[1] = -q.array[1];
+  array[2] = -q.array[2];
+  array[3] =  q.array[3];
 
   return *this;
 }
@@ -6619,13 +6633,13 @@ gg::GgQuaternion &gg::GgQuaternion::loadInvert(const GgQuaternion &q)
   // ノルムの二乗を求める
   const GLfloat l(q.array[0] * q.array[0] + q.array[1] * q.array[1] + q.array[2] * q.array[2] + q.array[3] * q.array[3]);
 
-  // 共役四元数を求める
-  GgQuaternion r;
-  r.loadConjugate(q);
-
-  // ノルムの二乗で割る
   if (l > 0.0f)
   {
+    // 共役四元数を求める
+    GgQuaternion r;
+    r.loadConjugate(q);
+
+    // ノルムの二乗で割る
     array[0] = r.array[0] / l;
     array[1] = r.array[1] / l;
     array[2] = r.array[2] / l;
@@ -6644,18 +6658,18 @@ GLfloat gg::GgQuaternion::norm() const
 }
 
 /*
-** 簡易トラックボール処理：コンストラクタ
+** 簡易トラックボール処理：リセット
 */
-gg::GgTrackball::GgTrackball()
+void gg::GgTrackball::reset()
 {
   // ドラッグ中ではない
   drag = false;
 
   // 単位クォーターニオンで初期化する
-  cq.loadIdentity();
+  tq = cq.loadIdentity();
 
   // 回転行列を初期化する
-  cq.getMatrix(rt);
+  tq.getMatrix(rt);
 }
 
 /*
@@ -6667,8 +6681,8 @@ gg::GgTrackball::GgTrackball()
 void gg::GgTrackball::region(int w, int h)
 {
   // マウスポインタ位置のウィンドウ内の相対的位置への換算用
-  sx = 1.0f / static_cast<float>(w);
-  sy = 1.0f / static_cast<float>(h);
+  sx = 1.0f / float(w);
+  sy = 1.0f / float(h);
 }
 
 /*
@@ -6716,6 +6730,27 @@ void gg::GgTrackball::motion(float x, float y)
 }
 
 /*
+** 簡易トラックボール処理：回転角の修正
+**
+**   現在の回転角を修正する
+**   q: 修正分の回転角を表す四元数
+*/
+void gg::GgTrackball::rotate(const GgQuaternion &q)
+{
+  if (!drag)
+  {
+    // 保存されている四元数に修正分の四元数を掛けて合成する
+    tq = q * cq;
+
+    // 合成した四元数から回転の変換行列を求める
+    tq.getMatrix(rt);
+
+    // 誤差を吸収するために正規化して保存する
+    cq = tq.normalize();
+  }
+}
+
+/*
 ** 簡易トラックボール処理：停止時の処理
 **
 **   マウスボタンを離したときに実行する
@@ -6726,7 +6761,7 @@ void gg::GgTrackball::stop(float x, float y)
   // ドラッグ終了点における回転を求める
   motion(x, y);
 
-  // 現在の回転を表す四元数を正規化して保存する
+  // 誤差を吸収するために正規化して保存する
   cq = tq.normalize();
 
   // ドラッグ終了
@@ -6770,25 +6805,25 @@ void gg::GgElements::draw(GLint first, GLsizei count) const
 gg::GgPoints *gg::ggPointsCube(GLuint nv, GLfloat length, GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
-  GLfloat (*pos)[3](new(std::nothrow) GLfloat[nv][3]);
-  
+  GLfloat (*const pos)[3](new(std::nothrow) GLfloat[nv][3]);
+
   // メモリが確保できなければ戻る
-  if (pos == NULL) return NULL;
-  
+  if (pos == nullptr) return nullptr;
+
   // 点を生成する
   for (GLuint v = 0; v < nv; ++v)
   {
-    pos[v][0] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * length + cx;
-    pos[v][1] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * length + cy;
-    pos[v][2] = (static_cast<float>(rand()) / static_cast<float>(RAND_MAX) - 0.5f) * length + cz;
+    pos[v][0] = (float(rand()) / float(RAND_MAX) - 0.5f) * length + cx;
+    pos[v][1] = (float(rand()) / float(RAND_MAX) - 0.5f) * length + cy;
+    pos[v][2] = (float(rand()) / float(RAND_MAX) - 0.5f) * length + cz;
   }
-  
+
   // ポイントデータの GgPoints オブジェクトを作成する
-  GgPoints *const points(new gg::GgPoints(nv, pos, GL_POINTS));
-  
+  GgPoints *const points(new GgPoints(nv, pos, GL_POINTS));
+
   // 作業用のメモリを解放する
   delete[] pos;
-  
+
   // GgPoints オブジェクトを返す
   return points;
 }
@@ -6802,20 +6837,21 @@ gg::GgPoints *gg::ggPointsCube(GLuint nv, GLfloat length, GLfloat cx, GLfloat cy
 **    \param cz 点群の中心の z 座標.
 **    \param radius 点群を生成する半径.
 */
-gg::GgPoints *gg::ggPointsSphere(GLuint nv, GLfloat radius, GLfloat cx, GLfloat cy, GLfloat cz)
+gg::GgPoints *gg::ggPointsSphere(GLuint nv, GLfloat radius,
+  GLfloat cx, GLfloat cy, GLfloat cz)
 {
   // メモリを確保する
-  GLfloat (*pos)[3](new(std::nothrow) GLfloat[nv][3]);
+  GLfloat (*const pos)[3](new(std::nothrow) GLfloat[nv][3]);
 
   // メモリが確保できなければ戻る
-  if (pos == NULL) return NULL;
+  if (pos == nullptr) return nullptr;
 
   // 点を生成する
   for (GLuint v = 0; v < nv; ++v)
   {
-    const float r(radius * static_cast<float>(rand()) / static_cast<float>(RAND_MAX));
-    const float t(6.2831853f * static_cast<float>(rand()) / (static_cast<float>(RAND_MAX)+1.0f));
-    const float cp(2.0f * static_cast<float>(rand()) / static_cast<float>(RAND_MAX)-1.0f);
+    const float r(radius * float(rand()) / float(RAND_MAX));
+    const float t(6.2831853f * float(rand()) / (float(RAND_MAX) + 1.0f));
+    const float cp(2.0f * float(rand()) / float(RAND_MAX) - 1.0f);
     const float sp(sqrt(1.0f - cp * cp));
     const float ct(cos(t));
     const float st(sin(t));
@@ -6826,7 +6862,7 @@ gg::GgPoints *gg::ggPointsSphere(GLuint nv, GLfloat radius, GLfloat cx, GLfloat 
   }
 
   // ポイントデータの GgPoints オブジェクトを作成する
-  GgPoints *const points(new gg::GgPoints(nv, pos, GL_POINTS));
+  GgPoints *const points(new GgPoints(nv, pos, GL_POINTS));
 
   // 作業用のメモリを解放する
   delete[] pos;
@@ -6869,7 +6905,7 @@ gg::GgTriangles *gg::ggRectangle(GLfloat width, GLfloat height)
   }
 
   // 矩形の GgTrianges オブジェクトを作成する
-  return new gg::GgTriangles(4, pos, norm, GL_TRIANGLE_FAN);
+  return new GgTriangles(4, pos, norm, GL_TRIANGLE_FAN);
 }
 
 /*!
@@ -6881,45 +6917,26 @@ gg::GgTriangles *gg::ggRectangle(GLfloat width, GLfloat height)
 */
 gg::GgTriangles *gg::ggEllipse(GLfloat width, GLfloat height, GLuint slices)
 {
-  // メモリを確保する
-  GLfloat (*pos)[3](NULL);
-  GLfloat (*norm)[3](NULL);
-  try
-  {
-    pos = new GLfloat[slices][3];
-    norm = new GLfloat[slices][3];
-  }
-  catch (std::bad_alloc e)
-  {
-    delete[] pos;
-    delete[] norm;
-
-    throw e;
-  }
+  // 作業用のメモリ
+  std::vector<GLfloat> pos, norm;
 
   // 頂点位置と法線ベクトルを求める
   for (GLuint v = 0; v < slices; ++v)
   {
-    const float t(6.2831853f * static_cast<float>(v) / static_cast<float>(slices));
+    const float t(6.2831853f * float(v) / float(slices));
 
-    pos[v][0] = cos(t) * width * 0.5f;
-    pos[v][1] = sin(t) * height * 0.5f;
-    pos[v][2] = 0.0f;
+    pos.push_back(cos(t) * width * 0.5f);
+    pos.push_back(sin(t) * height * 0.5f);
+    pos.push_back(0.0f);
 
-    norm[v][0] = 0.0f;
-    norm[v][1] = 0.0f;
-    norm[v][2] = 1.0f;
+    norm.push_back(0.0f);
+    norm.push_back(0.0f);
+    norm.push_back(1.0f);
   }
 
   // GgTriangles オブジェクトを作成する
-  GgTriangles *ellipse(new gg::GgTriangles(slices, pos, norm, GL_TRIANGLE_FAN));
-
-  // 作業用に使ったメモリを解放する
-  delete[] pos;
-  delete[] norm;
-
-  // GgTraiangles オブジェクトを返す
-  return ellipse;
+  return new GgTriangles(slices, reinterpret_cast<GLfloat (*)[3]>(&pos[0]),
+    reinterpret_cast<GLfloat (*)[3]>(&norm[0]), GL_TRIANGLE_FAN);
 }
 
 /*!
@@ -6942,7 +6959,7 @@ gg::GgTriangles *gg::ggArraysObj(const char *name, bool normalize)
   if (!ggLoadObj(name, ng, group, amb, diff, spec, shi, nv, pos, norm, normalize)) return 0;
 
   // GgTriangles オブジェクトを作成する
-  GgTriangles *const obj(new gg::GgTriangles(nv, pos, norm, GL_TRIANGLES));
+  GgTriangles *const obj(new GgTriangles(nv, pos, norm, GL_TRIANGLES));
 
   // 作業用に使ったメモリを解放する
   delete[] group;
@@ -6976,7 +6993,7 @@ gg::GgElements *gg::ggElementsObj(const char *name, bool normalize)
   if (!ggLoadObj(name, nv, pos, norm, nf, face, normalize)) return 0;
 
   // GgElements オブジェクトを作成する
-  GgElements *const obj(new gg::GgElements(nv, pos, norm, nf, face, GL_TRIANGLES));
+  GgElements *const obj(new GgElements(nv, pos, norm, nf, face, GL_TRIANGLES));
 
   // 作業用に使ったメモリを解放する
   delete[] pos;
@@ -6992,90 +7009,101 @@ gg::GgElements *gg::ggElementsObj(const char *name, bool normalize)
 **
 **   メッシュ状に GgElements 形式の三角形データを生成する.
 **
-**   \param width メッシュの幅.
-**   \param height メッシュの高さ.
 **   \param slices メッシュの横方向の分割数.
 **   \param stacks メッシュの縦方向の分割数.
+**   \param pos メッシュの頂点の位置.
+**   \param norm メッシュの頂点の法線ベクトル.
 */
-gg::GgElements *gg::ggElementsMesh(GLfloat width, GLfloat height, int slices, int stacks)
+gg::GgElements *gg::ggElementsMesh(int slices, int stacks, const GLfloat (*pos)[3], const GLfloat (*norm)[3])
 {
-  // 頂点数と面数
-  const GLuint nv((slices + 1) * (stacks + 1));
-  const GLuint nf(slices * slices * 2);
+  // 頂点の法線ベクトル
+  std::vector<GLfloat> tnorm;
 
-  // メモリを確保する
-  GLfloat (*pos)[3](NULL);
-  GLfloat (*norm)[3](NULL);
-  GLuint (*face)[3](NULL);
-  try
+  // 頂点の法線ベクトルの初期設定
+  if (norm == nullptr)
   {
-    pos = new GLfloat[nv][3];
-    norm = new GLfloat[nv][3];
-    face = new GLuint[nf][3];
-  }
-  catch (std::bad_alloc e)
-  {
-    delete[] pos;
-    delete[] norm;
-    delete[] face;
-
-    throw e;
-  }
-
-  // 頂点の位置と法線ベクトルを求める
-  for (int k = 0, j = 0; j <= stacks; ++j)
-  {
-    const GLfloat y((GLfloat)j / (GLfloat)stacks);
-
-    for (int i = 0; i <= slices; ++i)
+    // 頂点の法線ベクトルを求める
+    for (int j = 0; j <= stacks; ++j)
     {
-      const GLfloat x((GLfloat)i / (GLfloat)slices);
+      for (int i = 0; i <= slices; ++i)
+      {
+        // 処理対象の頂点番号
+        const int k = j * (slices + 1) + i;
 
-      // 頂点の座標値
-      pos[k][0] = x;
-      pos[k][1] = y;
-      pos[k][2] = 0.0f;
+        // 処理対象の頂点の周囲の頂点番号
+        const int kim = i > 0 ? k - 1 : k;
+        const int kip = i < slices ? k + 1 : k;
+        const int kjm = j > 0 ? k - slices - 1 : k;
+        const int kjp = j < stacks ? k + slices + 1 : k;
 
-      // 頂点の法線ベクトル
-      norm[k][0] = 0.0f;
-      norm[k][1] = 0.0f;
-      norm[k][2] = 1.0f;
+        // 接線ベクトル
+        const GLfloat t[] =
+        {
+          pos[kip][0] - pos[kim][0],
+          pos[kip][1] - pos[kim][1],
+          pos[kip][2] - pos[kim][2]
+        };
 
-      ++k;
+        // 従接線ベクトル
+        const GLfloat b[] =
+        {
+          pos[kjp][0] - pos[kjm][0],
+          pos[kjp][1] - pos[kjm][1],
+          pos[kjp][2] - pos[kjm][2]
+        };
+
+        // 法線ベクトル
+        const GLfloat n[] =
+        {
+          t[1] * b[2] - t[2] * b[1],
+          t[2] * b[0] - t[0] * b[2],
+          t[0] * b[1] - t[1] * b[0]
+        };
+
+        // 法線ベクトルの正規化
+        const GLfloat l = n[0] * n[0] + n[1] * n[1] + n[2] * n[2];
+        if (l > 0.0f)
+        {
+          tnorm.push_back(n[0] / l);
+          tnorm.push_back(n[1] / l);
+          tnorm.push_back(n[2] / l);
+        }
+        else{
+          tnorm.push_back(0.0f);
+          tnorm.push_back(0.0f);
+          tnorm.push_back(0.0f);
+        }
+      }
     }
+
+    norm = reinterpret_cast<GLfloat (*)[3]>(&tnorm[0]);
   }
 
-  // 面の指標を求める
-  for (int k = 0, j = 0; j < stacks; ++j)
+  // 頂点のインデックス (面データ)
+  std::vector<GLuint> f;
+
+  // 頂点のインデックスを求める
+  for (int j = 0; j < stacks; ++j)
   {
     for (int i = 0; i < slices; ++i)
     {
-      const int count((slices + 1) * j + i);
+      const int k((slices + 1) * j + i);
 
       // 上半分の三角形
-      face[k][0] = count;
-      face[k][1] = count + slices + 2;
-      face[k][2] = count + 1;
-      ++k;
+      f.push_back(k);
+      f.push_back(k + slices + 2);
+      f.push_back(k + 1);
 
       // 下半分の三角形
-      face[k][0] = count;
-      face[k][1] = count + slices + 1;
-      face[k][2] = count + slices + 2;
-      ++k;
+      f.push_back(k);
+      f.push_back(k + slices + 1);
+      f.push_back(k + slices + 2);
     }
   }
 
   // GgElements オブジェクトを作成する
-  GgElements *const obj(new gg::GgElements(nv, pos, norm, nf, face, GL_TRIANGLES));
-
-  // 作業用に使ったメモリを解放する
-  delete[] pos;
-  delete[] norm;
-  delete[] face;
-
-  // GgElements オブジェクトを返す
-  return obj;
+  return new GgElements((slices + 1) * (stacks + 1), pos, norm,
+    static_cast<GLuint>(f.size()) / 3, reinterpret_cast<GLuint (*)[3]>(&f[0]), GL_TRIANGLES);
 }
 
 /*!
@@ -7089,89 +7117,39 @@ gg::GgElements *gg::ggElementsMesh(GLfloat width, GLfloat height, int slices, in
 */
 gg::GgElements *gg::ggElementsSphere(GLfloat radius, int slices, int stacks)
 {
-  // 頂点数と面数
-  const GLuint nv((slices + 1) * (stacks + 1));
-  const GLuint nf(slices * slices * 2);
-
-  // メモリの確保
-  GLfloat (*pos)[3](NULL);
-  GLfloat (*norm)[3](NULL);
-  GLuint (*face)[3](NULL);
-  try
-  {
-    pos = new GLfloat[nv][3];
-    norm = new GLfloat[nv][3];
-    face = new GLuint[nf][3];
-  }
-  catch (std::bad_alloc e)
-  {
-    delete[] pos;
-    delete[] norm;
-    delete[] face;
-
-    throw e;
-  }
+  // 頂点の位置と法線ベクトル
+  std::vector<GLfloat> p, n;
 
   // 頂点の位置と法線ベクトルを求める
-  for (int k = 0, j = 0; j <= stacks; ++j)
+  for (int j = 0; j <= stacks; ++j)
   {
-    const float t((float)j / (float)stacks);
+    const float t(float(j) / float(stacks));
     const float ph(3.141593f * t);
     const float y(cosf(ph));
     const float r(sinf(ph));
 
     for (int i = 0; i <= slices; ++i)
     {
-      const float s((float)i / (float)slices);
+      const float s(float(i) / float(slices));
       const float th(-2.0f * 3.141593f * s);
       const float x(r * cosf(th));
       const float z(r * sinf(th));
 
       // 頂点の座標値
-      pos[k][0] = x * radius;
-      pos[k][1] = y * radius;
-      pos[k][2] = z * radius;
+      p.push_back(x * radius);
+      p.push_back(y * radius);
+      p.push_back(z * radius);
 
       // 頂点の法線ベクトル
-      norm[k][0] = x;
-      norm[k][1] = y;
-      norm[k][2] = z;
-
-      ++k;
-    }
-  }
-
-  // 面の指標を求める
-  for (int k = 0, j = 0; j < stacks; ++j)
-  {
-    for (int i = 0; i < slices; ++i)
-    {
-      const int count((slices + 1) * j + i);
-
-      // 上半分の三角形
-      face[k][0] = count;
-      face[k][1] = count + slices + 2;
-      face[k][2] = count + 1;
-      ++k;
-
-      // 下半分の三角形
-      face[k][0] = count;
-      face[k][1] = count + slices + 1;
-      face[k][2] = count + slices + 2;
-      ++k;
+      n.push_back(x);
+      n.push_back(y);
+      n.push_back(z);
     }
   }
 
   // オブジェクトの作成
-  GgElements *const obj(new gg::GgElements(nv, pos, norm, nf, face, GL_TRIANGLES));
-
-  // 作業用に使ったメモリを解放する
-  delete[] pos;
-  delete[] norm;
-  delete[] face;
-
-  // GgElements オブジェクトを返す
-  return obj;
+  return ggElementsMesh(slices, stacks, reinterpret_cast<GLfloat (*)[3]>(&p[0]),
+    reinterpret_cast<GLfloat (*)[3]>(&n[0]));
 }
 
 /*
@@ -7210,13 +7188,14 @@ gg::GgObj::~GgObj()
   delete[] diff;
   delete[] spec;
   delete[] shi;
-  delete[] data;
+  delete data;
 }
 
 /*
 ** Wavefront OBJ 形式のデータ：コンストラクタ
 */
 gg::GgObj::GgObj(const char *name, bool normalize)
+  : data(nullptr), shader(nullptr)
 {
   GLuint nv;
   GLfloat (*pos)[3], (*norm)[3];
@@ -7238,19 +7217,19 @@ gg::GgObj::GgObj(const char *name, bool normalize)
 */
 void gg::GgObj::draw(GLint first, GLsizei count) const
 {
-  // シェーダの選択
-  shader->use();
-
   // 描画するグループの数
   if (count <= 0) count = ng - first;
 
   for (int g = first; g < count; ++g)
   {
-    // 材質を設定する
-    shader->setMaterialAmbient(amb[g]);
-    shader->setMaterialDiffuse(diff[g]);
-    shader->setMaterialSpecular(spec[g]);
-    shader->setMaterialShininess(shi[g]);
+    if (shader)
+    {
+      // 材質を設定する
+      shader->setMaterialAmbient(amb[g]);
+      shader->setMaterialDiffuse(diff[g]);
+      shader->setMaterialSpecular(spec[g]);
+      shader->setMaterialShininess(shi[g]);
+    }
 
     // 図形を描画する
     data->draw(group[g][0], group[g][1]);
